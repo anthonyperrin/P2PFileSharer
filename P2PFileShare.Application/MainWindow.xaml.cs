@@ -129,14 +129,13 @@ namespace P2PFileShare.Application
                     FileForm.Visibility = Visibility.Visible;
                     LogoutButton.Visibility = Visibility.Visible;
                     LoginButton.Visibility = Visibility.Hidden;
-                    ServerListener.ReceiveFile();
                 }
             }
         }
 
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
-            ClientSocket.DisconnectSocket();
+            ClientSocket.EndConnection();
             if (!ClientSocket.Socket.Connected)
             {
                 FileForm.Visibility = Visibility.Hidden;

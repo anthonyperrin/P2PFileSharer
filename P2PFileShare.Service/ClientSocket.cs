@@ -39,14 +39,6 @@ namespace P2PFileShare.Services
             }
         }
 
-        public void DisconnectSocket()
-        {
-            if (Socket.Connected)
-            {
-                Socket.Disconnect(true);
-            }
-        }
-
         public void SendFile(string file)
         {
             if (_socket.Connected)

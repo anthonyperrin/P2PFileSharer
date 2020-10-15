@@ -5,68 +5,56 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace P2PFileShare.Services
 {
     public class ServerListener
     {
-        private Socket clientSocket;
+        TcpListener server = null;
         private const int BUFFER_SIZE = 2048;
         private const string ROOT_PATH = @"C:\Temp\";
         private const string EFFORCEUR_PATH = @"C:\Temp\Efforceurs";
-        private IPEndPoint EndPoint;
+        TcpClient handlerSocket;
 
         public ServerListener()
         {
             CheckDefaultSaveDir();
-            StartListening();
+            Listen();
         }
 
-        public void StartListening()
+        public void Listen()
         {
-            EndPoint = new IPEndPoint(IPAddress.Any, 5656);
-            clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            clientSocket.Bind(EndPoint);
-            clientSocket.Listen(1);
-        }
-
-        public void ReceiveFile()
-        {
-            try
+            int port = 5656;
+            IPAddress localAddr = IPAddress.Parse("127.0.0.1");
+            server = new TcpListener(localAddr, port);
+            server.Start();
+            TcpClient handlerSocket = server.AcceptTcpClient();
+            if (handlerSocket.Connected)
             {
-                byte[] clientData = new byte[1024 * 5000];
-
-                clientSocket.BeginReceive(clientData, 0, clientData.Length, 0, new AsyncCallback(ReceiveCallback), clientSocket);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+                Thread thdhandler = new Thread(new ThreadStart(HandlerThread));
+                thdhandler.Start();
             }
         }
 
-        private static void ReceiveCallback(IAsyncResult ar)
+        private void HandlerThread()
         {
-            try
+            NetworkStream Nw = new NetworkStream(handlerSocket.Client);
+            int thisRead = 0;
+            Byte[] dataByte = new Byte[BUFFER_SIZE];
+            
+            Stream strm = File.OpenWrite(EFFORCEUR_PATH);
+            while (true)
             {
-
-                byte[] clientData = new byte[1024 * 5000];
- 
-                Socket client = (Socket)ar.AsyncState;
-                int bytesRead = client.EndReceive(ar);
-
-                int fileNameLen = BitConverter.ToInt32(clientData, 0);
-
-                string fileName = Encoding.ASCII.GetString(clientData, 4, fileNameLen);
-                BinaryWriter bWrite = new BinaryWriter(File.Open(EFFORCEUR_PATH + "/" + fileName, FileMode.Append)); ;
-                bWrite.Write(clientData, 4 + fileNameLen, bytesRead - 4 - fileNameLen);
-
-                bWrite.Close();
+                thisRead = Nw.Read(dataByte, 0, BUFFER_SIZE);
+                strm.Write(dataByte, 0, thisRead);
+                if (thisRead == 0)
+                    break;
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
+            strm.Close();
+            handlerSocket = null;
+            
         }
 
         private void CheckDefaultSaveDir()
