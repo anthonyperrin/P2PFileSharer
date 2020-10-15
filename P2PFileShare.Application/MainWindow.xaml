@@ -1,0 +1,142 @@
+﻿<Window x:Class="P2PFileShare.Application.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:P2PFileShare.Application"
+        mc:Ignorable="d"
+        Title="P2P File Sharer" Height="380" Width="800"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"        
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0">
+            <materialDesign:ColorZone
+                Mode="PrimaryLight"
+                Padding="16">
+                <TextBlock
+                    Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                    VerticalAlignment="Center">
+                    P2P File Share
+                </TextBlock>
+            </materialDesign:ColorZone>
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <TextBlock
+                Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                Grid.Row="0"
+                Grid.ColumnSpan="2"
+                Margin="16 16 16 16"
+                Text="Configuration"/>
+            <Grid Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="135"></ColumnDefinition>
+                    <ColumnDefinition Width="90"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" materialDesign:ValidationAssist.HorizontalAlignment="Left" Margin="16 0"
+                         materialDesign:HintAssist.HelperText="Adresse IP"
+                         Text="{Binding IpAddress}"/>
+                <TextBox Grid.Column="1" materialDesign:ValidationAssist.HorizontalAlignment="Left" Margin="16 0"
+                         materialDesign:HintAssist.HelperText="Port"
+                         Text="{Binding Port}"/>
+            </Grid>
+            <Button Grid.Row="1" 
+                    Grid.Column="2" 
+                    Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                    ToolTip="Ouvre une connexion au serveur distant" Click="LoginButton_Click"
+                    Name="LoginButton">
+                <materialDesign:PackIcon
+                        Kind="Login"
+                        Height="24"
+                        Width="24"/>
+            </Button>
+            <Button Grid.Row="1" 
+                    Grid.Column="2" 
+                    Style="{StaticResource MaterialDesignFloatingActionMiniDarkButton}"
+                    ToolTip="Ferme la connexion au serveur distant" Click="LogoutButton_Click"
+                    Visibility="Hidden"
+                    Name="LogoutButton" RenderTransformOrigin="2.175,1.65">
+                <materialDesign:PackIcon
+                        Kind="Plug"
+                        Height="24"
+                        Width="24"/>
+            </Button>
+        </Grid>
+        <Grid Grid.Row="2" Visibility="Hidden" Name="FileForm">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <TextBlock
+                    Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                    Grid.Row="0"
+                    Grid.ColumnSpan="2"
+                    Margin="16 16 16 16"
+                    Text="Fichier"/>
+                <Button
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Name="btnOpenFile"
+                    Margin="16 0"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Click="btnOpenFile_Click"
+                    ToolTip="MaterialDesignFlatButton" Content="FICHIER">
+                </Button>
+                <Grid Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="0 0 16 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" materialDesign:ValidationAssist.HorizontalAlignment="Left"
+                        materialDesign:HintAssist.Hint="C:\\"
+                        materialDesign:HintAssist.HelperText="Lien de fichier"
+                        Text="{Binding File}"/>
+                </Grid>
+            </Grid>
+            <Grid 
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Right"
+                Grid.Row="1"
+                Margin="0 0 16 16">
+                <Button
+                    Style="{StaticResource MaterialDesignFloatingActionAccentButton}"
+                    ToolTip="Envoyer le fichier"
+                    Click="btnSendFile_Click">
+                    <materialDesign:PackIcon
+                        Kind="FileSendOutline"
+                        Height="24"
+                        Width="24"/>
+                </Button>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
