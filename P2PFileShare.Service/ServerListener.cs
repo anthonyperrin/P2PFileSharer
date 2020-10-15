@@ -14,9 +14,8 @@ namespace P2PFileShare.Services
     {
         TcpListener server = null;
         private const int BUFFER_SIZE = 2048;
-        private const string ROOT_PATH = @"C:\Temp\";
-        private const string EFFORCEUR_PATH = @"C:\Temp\Efforceurs";
-        TcpClient handlerSocket;
+        private const string ROOT_PATH = @"D:";
+        private const string EFFORCEUR_PATH = @"D:";
 
         public ServerListener()
         {
@@ -24,37 +23,40 @@ namespace P2PFileShare.Services
             Listen();
         }
 
-        public void Listen()
+        public async Task Listen()
         {
             int port = 5656;
             IPAddress localAddr = IPAddress.Parse("127.0.0.1");
             server = new TcpListener(localAddr, port);
+
             server.Start();
-            TcpClient handlerSocket = server.AcceptTcpClient();
-            if (handlerSocket.Connected)
+
+            while (true)
             {
-                Thread thdhandler = new Thread(new ThreadStart(HandlerThread));
-                thdhandler.Start();
+                TcpClient handlerSocket = await server.AcceptTcpClientAsync();
+                if (handlerSocket.Connected)
+                {
+                    Handler(handlerSocket);
+                }
             }
         }
 
-        private void HandlerThread()
+        public async Task Handler (TcpClient handlerSocket)
         {
             NetworkStream Nw = new NetworkStream(handlerSocket.Client);
             int thisRead = 0;
             Byte[] dataByte = new Byte[BUFFER_SIZE];
-            
-            Stream strm = File.OpenWrite(EFFORCEUR_PATH);
+
+            Stream strm = File.OpenWrite(Path.Combine(EFFORCEUR_PATH, "mescouilles.png"));
             while (true)
             {
-                thisRead = Nw.Read(dataByte, 0, BUFFER_SIZE);
+                thisRead = await Nw.ReadAsync(dataByte, 0, BUFFER_SIZE);
                 strm.Write(dataByte, 0, thisRead);
                 if (thisRead == 0)
                     break;
             }
             strm.Close();
             handlerSocket = null;
-            
         }
 
         private void CheckDefaultSaveDir()
@@ -67,6 +69,6 @@ namespace P2PFileShare.Services
             {
                 Directory.CreateDirectory(EFFORCEUR_PATH);
             }
-         }
+        }
     }
 }

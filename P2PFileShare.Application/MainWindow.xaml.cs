@@ -111,9 +111,11 @@ namespace P2PFileShare.Application
 
         private void btnSendFile_Click(object sender, RoutedEventArgs e)
         {
+            ClientSocket = new ClientSocket(IPAddress.Parse(IpAddress), Int32.Parse(Port));
             if (ClientSocket.Socket.Connected)
             {
                 ClientSocket.SendFile(File);
+                ClientSocket.EndConnection();
             }
         }
 
@@ -122,13 +124,12 @@ namespace P2PFileShare.Application
             if (IpAddress != null && Port != null)
             {
                 ClientSocket = new ClientSocket(IPAddress.Parse(IpAddress), Int32.Parse(Port));
-                Console.WriteLine(IPAddress.Parse(IpAddress));
-                Console.WriteLine(Int32.Parse(Port));
                 if (ClientSocket.Socket.Connected)
                 {
                     FileForm.Visibility = Visibility.Visible;
                     LogoutButton.Visibility = Visibility.Visible;
                     LoginButton.Visibility = Visibility.Hidden;
+                    ClientSocket.EndConnection();
                 }
             }
         }
