@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:P2PFileShare.Application"
         mc:Ignorable="d"
-        Title="P2P File Sharer" Height="380" Width="800"
+        Title="P2P File Sharer" Height="500" Width="800"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -34,6 +34,7 @@
         </StackPanel>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
@@ -82,9 +83,20 @@
                         Height="24"
                         Width="24"/>
             </Button>
+            <StackPanel
+                Grid.Row="1"
+                Grid.Column="3"
+                VerticalAlignment="Center">
+                <TextBlock 
+                    Visibility="Hidden"
+                    Name="ConnectionInfo"
+                    Margin="16 0"
+                    Text=""/>
+            </StackPanel>
         </Grid>
         <Grid Grid.Row="2" Visibility="Hidden" Name="FileForm">
             <Grid.RowDefinitions>
+                <RowDefinition Height="auto"></RowDefinition>
                 <RowDefinition Height="auto"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
@@ -102,7 +114,7 @@
                     Grid.Row="0"
                     Grid.ColumnSpan="2"
                     Margin="16 16 16 16"
-                    Text="Fichier"/>
+                    Text="Envoi"/>
                 <Button
                     Grid.Row="1"
                     Grid.Column="0"
@@ -122,10 +134,45 @@
                         Text="{Binding File}"/>
                 </Grid>
             </Grid>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <TextBlock
+                    Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                    Grid.Row="0"
+                    Grid.ColumnSpan="2"
+                    Margin="16 16 16 16"
+                    Text="Réception"/>
+                <Button
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Name="btnChangeFolder"
+                    Margin="16 0"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Click="btnChangeFolder_Click"
+                    ToolTip="MaterialDesignFlatButton" Content="DOSSIER">
+                </Button>
+                <Grid Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="0 0 16 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" materialDesign:ValidationAssist.HorizontalAlignment="Left"
+                        materialDesign:HintAssist.Hint="C:\\"
+                        materialDesign:HintAssist.HelperText="Emplacement du dossier"
+                        Text="{Binding Repository}"/>
+                </Grid>
+
+            </Grid>
             <Grid 
                 VerticalAlignment="Bottom"
                 HorizontalAlignment="Right"
-                Grid.Row="1"
+                Grid.Row="2"
                 Margin="0 0 16 16">
                 <Button
                     Style="{StaticResource MaterialDesignFloatingActionAccentButton}"

@@ -13,21 +13,51 @@ namespace P2PFileShare.Services
 {
     public class ServerListener
     {
+        #region Variables
         TcpListener server = null;
         private const int DATA_BUFFER_SIZE = 2048;
         private const int FILE_NAME_BUFFER_SIZE = 64;
-        private const string ROOT_PATH = @"C:\Temp\";
-        private const string EFFORCEUR_DIR = @"Efforceurs";
+        private string _rootPath;
+        private string _repository;
+        #endregion
+
+        #region Propriétés
+        public string RootPath
+        {
+            get { return _rootPath; }
+            set
+            {
+                if (value != _rootPath)
+                {
+                    _rootPath = value;
+                }
+            }
+        }
+
+        public string Repository
+        {
+            get { return _repository; }
+            set
+            {
+                if (value != _repository)
+                {
+                    _repository = value;
+                }
+            }
+        }
+        #endregion
 
         public ServerListener()
         {
+            RootPath = @"C:\Temp\";
+            Repository = @"Efforceurs";
             CheckDefaultSaveDir();
             Listen();
         }
 
         public string getSavePath()
         {
-            return Path.Combine(ROOT_PATH, EFFORCEUR_DIR);
+            return Path.Combine(RootPath, Repository);
         }
 
         public async Task Listen()
@@ -74,13 +104,13 @@ namespace P2PFileShare.Services
 
         private void CheckDefaultSaveDir()
         {
-            if (!Directory.Exists(ROOT_PATH))
+            if (!Directory.Exists(RootPath))
             {
-                Directory.CreateDirectory(ROOT_PATH);
+                Directory.CreateDirectory(RootPath);
             }
             if (!Directory.Exists(getSavePath()))
             {
-                Directory.CreateDirectory(Path.Combine(ROOT_PATH, EFFORCEUR_DIR));
+                Directory.CreateDirectory(getSavePath());
             }
         }
 

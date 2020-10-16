@@ -4,6 +4,9 @@ using System.Windows;
 using P2PFileShare.Services;
 using System.Net;
 using System;
+using System.Windows.Forms;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using System.Linq;
 
 namespace P2PFileShare.Application
 {
@@ -17,6 +20,7 @@ namespace P2PFileShare.Application
         private string _ipAddress;
         private string _port;
         private string _file;
+        private string _repository;
         private ServerListener _serverListener;
         private ClientSocket _clientSocket;
 
@@ -63,6 +67,19 @@ namespace P2PFileShare.Application
             }
         }
 
+        public string Repository
+        {
+            get { return _repository; }
+            set
+            {
+                if (value != _repository)
+                {
+                    _repository = value;
+                    OnPropertyChanged("Repository");
+                }
+            }
+        }
+
         public ServerListener ServerListener
         {
             get { return _serverListener; }
@@ -95,6 +112,8 @@ namespace P2PFileShare.Application
         {
             InitializeComponent();
             ServerListener = new ServerListener();
+            IpAddress = "192.168.1.136";
+            Port = "5656";
         }
 
         protected void OnPropertyChanged(string propertyName)
@@ -126,6 +145,8 @@ namespace P2PFileShare.Application
                 ClientSocket = new ClientSocket(IPAddress.Parse(IpAddress), Int32.Parse(Port));
                 if (ClientSocket.Socket.Connected)
                 {
+                    ConnectionInfo.Text = string.Format("Connecté à : {0}:{1}", IpAddress, Port);
+                    ConnectionInfo.Visibility = Visibility.Visible;
                     FileForm.Visibility = Visibility.Visible;
                     LogoutButton.Visibility = Visibility.Visible;
                     LoginButton.Visibility = Visibility.Hidden;
@@ -140,8 +161,23 @@ namespace P2PFileShare.Application
             if (!ClientSocket.Socket.Connected)
             {
                 FileForm.Visibility = Visibility.Hidden;
+                ConnectionInfo.Visibility = Visibility.Hidden;
                 LogoutButton.Visibility = Visibility.Hidden;
                 LoginButton.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void btnChangeFolder_Click(object sender, RoutedEventArgs e)
+        {
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+            var result = folderBrowserDialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+                Repository = folderBrowserDialog.SelectedPath;
+
+            if (!string.IsNullOrEmpty(Repository))
+            {
+                ServerListener.Repository = string.Empty;
+                ServerListener.RootPath = Repository;
             }
         }
     }
