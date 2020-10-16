@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace P2PFileShare.Services
 {
@@ -26,16 +27,21 @@ namespace P2PFileShare.Services
         }
         public ClientSocket(IPAddress ip, int port)
         {
+            CreateAndConnectAsync(ip, port);
+        }
+
+        public async void CreateAndConnectAsync(IPAddress ip, int port)
+        {
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                _socket.Connect(ip, port);
-            } catch (SocketException e)
+                _socket.ConnectAsync(ip, port);
+            }
+            catch (SocketException e)
             {
                 Console.WriteLine(e.Message);
             }
         }
-
         public void SendFile(string file)
         {
             if (_socket.Connected)
