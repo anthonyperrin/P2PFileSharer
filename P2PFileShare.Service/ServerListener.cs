@@ -34,7 +34,6 @@ namespace P2PFileShare.Services
         {
             int port = 5656;
             IPAddress localAddr = GetIPAddress();
-            Console.WriteLine(localAddr);
             server = new TcpListener(localAddr, port);
 
             server.Start();
