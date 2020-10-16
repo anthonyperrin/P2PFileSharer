@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -13,9 +14,10 @@ namespace P2PFileShare.Services
     public class ServerListener
     {
         TcpListener server = null;
-        private const int BUFFER_SIZE = 2048;
-        private const string ROOT_PATH = @"D:";
-        private const string EFFORCEUR_PATH = @"D:";
+        private const int DATA_BUFFER_SIZE = 2048;
+        private const int FILE_NAME_BUFFER_SIZE = 64;
+        private const string ROOT_PATH = @"C:\Temp\";
+        private const string EFFORCEUR_DIR = @"Efforceurs";
 
         public ServerListener()
         {
@@ -23,10 +25,16 @@ namespace P2PFileShare.Services
             Listen();
         }
 
+        public string getSavePath()
+        {
+            return Path.Combine(ROOT_PATH, EFFORCEUR_DIR);
+        }
+
         public async Task Listen()
         {
             int port = 5656;
-            IPAddress localAddr = IPAddress.Parse("127.0.0.1");
+            IPAddress localAddr = GetIPAddress();
+            Console.WriteLine(localAddr);
             server = new TcpListener(localAddr, port);
 
             server.Start();
@@ -41,22 +49,28 @@ namespace P2PFileShare.Services
             }
         }
 
-        public async Task Handler (TcpClient handlerSocket)
+        public async Task Handler(TcpClient handlerSocket)
         {
             NetworkStream Nw = new NetworkStream(handlerSocket.Client);
-            int thisRead = 0;
-            Byte[] dataByte = new Byte[BUFFER_SIZE];
-
-            Stream strm = File.OpenWrite(Path.Combine(EFFORCEUR_PATH, "mescouilles.png"));
-            while (true)
+            if (Nw.DataAvailable)
             {
-                thisRead = await Nw.ReadAsync(dataByte, 0, BUFFER_SIZE);
-                strm.Write(dataByte, 0, thisRead);
-                if (thisRead == 0)
-                    break;
+                int thisRead = 0;
+                Byte[] dataBytes = new Byte[DATA_BUFFER_SIZE];
+                Byte[] fileNameBytes = new Byte[FILE_NAME_BUFFER_SIZE];
+
+                await Nw.ReadAsync(fileNameBytes, 0, FILE_NAME_BUFFER_SIZE);
+                
+                Stream writingStream = File.OpenWrite(Path.Combine(getSavePath(), getFileName(fileNameBytes)));
+                while (true)
+                {
+                    thisRead = await Nw.ReadAsync(dataBytes, 0, DATA_BUFFER_SIZE);
+                    writingStream.Write(dataBytes, 0, thisRead);
+                    if (thisRead == 0)
+                        break;
+                }
+                writingStream.Close();
+                handlerSocket = null;
             }
-            strm.Close();
-            handlerSocket = null;
         }
 
         private void CheckDefaultSaveDir()
@@ -65,10 +79,35 @@ namespace P2PFileShare.Services
             {
                 Directory.CreateDirectory(ROOT_PATH);
             }
-            if (!Directory.Exists(EFFORCEUR_PATH))
+            if (!Directory.Exists(getSavePath()))
             {
-                Directory.CreateDirectory(EFFORCEUR_PATH);
+                Directory.CreateDirectory(Path.Combine(ROOT_PATH, EFFORCEUR_DIR));
             }
+        }
+
+        private IPAddress GetIPAddress()
+        {
+            IPAddress[] ips = Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(o => o.AddressFamily == AddressFamily.InterNetwork).ToArray();
+            string localIP;
+            using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
+            {
+                socket.Connect("8.8.8.8", 65530);
+                IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
+                localIP = endPoint.Address.ToString();
+                return IPAddress.Parse(localIP);
+            }
+        }
+
+        private string getFileName(byte[] fileNameBytes)
+        {
+            int i = fileNameBytes.Length - 1;
+            while (fileNameBytes[i] == 0)
+                --i;
+
+            byte[] filteredFileNameBytes = new byte[i + 1];
+            Array.Copy(fileNameBytes, filteredFileNameBytes, i + 1);
+
+            return Encoding.UTF8.GetString(filteredFileNameBytes);
         }
     }
 }

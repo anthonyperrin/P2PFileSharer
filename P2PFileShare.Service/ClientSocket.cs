@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace P2PFileShare.Services
 {
     public class ClientSocket
     {
         private Socket _socket;
+        private const int FILE_NAME_BUFFER_SIZE = 64;
 
         public Socket Socket
         {
@@ -52,14 +49,11 @@ namespace P2PFileShare.Services
                     fileName = fileName.Substring(fileName.IndexOf("/") + 1);
                 }
 
+                Byte[] fileNameData = new Byte[FILE_NAME_BUFFER_SIZE];
                 byte[] fileNameByte = Encoding.ASCII.GetBytes(fileName);
-                byte[] fileData = File.ReadAllBytes(filePath + fileName);
-                byte[] clientData = new byte[4 + fileNameByte.Length + fileData.Length];
-                byte[] fileNameLen = BitConverter.GetBytes(fileNameByte.Length);
-                fileNameLen.CopyTo(clientData, 0);
-                fileNameByte.CopyTo(clientData, 4);
-                fileData.CopyTo(clientData, 4 + fileNameByte.Length);
-                _socket.SendFile(file); 
+                fileNameByte.CopyTo(fileNameData, 0);
+                Socket.Send(fileNameData);
+                Socket.SendFile(file);
             }
         }
 
