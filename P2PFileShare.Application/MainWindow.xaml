@@ -23,13 +23,27 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0">
             <materialDesign:ColorZone
-                Mode="PrimaryLight"
-                Padding="16">
-                <TextBlock
-                    Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                    VerticalAlignment="Center">
-                    P2P File Share
-                </TextBlock>
+                    Mode="PrimaryLight"
+                    Padding="16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                        VerticalAlignment="Center"
+                        Grid.Column="0">
+                        P2P File Share
+                    </TextBlock>
+                    <TextBlock
+                        Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Right"
+                        Name="ServerInfos"
+                        Grid.Column="1">
+                    </TextBlock>
+                </Grid>
             </materialDesign:ColorZone>
         </StackPanel>
         <Grid Grid.Row="1">

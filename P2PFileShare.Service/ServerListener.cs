@@ -15,6 +15,8 @@ namespace P2PFileShare.Services
     {
         #region Variables
         TcpListener server = null;
+        private IPAddress _ipAddress;
+        private int _port;
         private const int DATA_BUFFER_SIZE = 2048;
         private const int FILE_NAME_BUFFER_SIZE = 64;
         private string _rootPath;
@@ -45,6 +47,29 @@ namespace P2PFileShare.Services
                 }
             }
         }
+
+        public IPAddress IpAddress
+        {
+            get { return _ipAddress; }
+            set
+            {
+                if (value != _ipAddress)
+                {
+                    _ipAddress = value;
+                }
+            }
+        }
+        public int Port
+        {
+            get { return _port; }
+            set
+            {
+                if (value != _port)
+                {
+                    _port = value;
+                }
+            }
+        }
         #endregion
 
         public ServerListener()
@@ -62,9 +87,9 @@ namespace P2PFileShare.Services
 
         public async Task Listen()
         {
-            int port = 5656;
-            IPAddress localAddr = GetIPAddress();
-            server = new TcpListener(localAddr, port);
+            IpAddress= GetIPAddress();
+            Port = 5656;
+            server = new TcpListener(IpAddress, Port);
 
             server.Start();
 
