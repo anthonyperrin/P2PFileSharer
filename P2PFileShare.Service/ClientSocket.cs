@@ -35,7 +35,7 @@ namespace P2PFileShare.Services
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                _socket.ConnectAsync(ip, port);
+                await _socket.ConnectAsync(ip, port);
             }
             catch (SocketException e)
             {
