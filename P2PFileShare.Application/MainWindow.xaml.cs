@@ -131,7 +131,8 @@ namespace P2PFileShare.Application
 
         private void btnSendFile_Click(object sender, RoutedEventArgs e)
         {
-            ClientSocket = new ClientSocket(IPAddress.Parse(IpAddress), Int32.Parse(Port));
+            ClientSocket = new ClientSocket();
+            _ = ClientSocket.CreateAndConnectAsync(IPAddress.Parse(IpAddress), Int32.Parse(Port), VerifySocketConnectionAvailability);
             if (ClientSocket.Socket.Connected)
             {
                 ClientSocket.SendFile(File);
@@ -143,16 +144,26 @@ namespace P2PFileShare.Application
         {
             if (IpAddress != null && Port != null)
             {
-                ClientSocket = new ClientSocket(IPAddress.Parse(IpAddress), Int32.Parse(Port));
-                if (ClientSocket.Socket.Connected)
-                {
-                    ConnectionInfo.Text = string.Format("Connecté à : {0}:{1}", IpAddress, Port);
-                    ConnectionInfo.Visibility = Visibility.Visible;
-                    FileForm.Visibility = Visibility.Visible;
-                    LogoutButton.Visibility = Visibility.Visible;
-                    LoginButton.Visibility = Visibility.Hidden;
-                    ClientSocket.EndConnection();
-                }
+                ClientSocket = new ClientSocket();
+                _ = ClientSocket.CreateAndConnectAsync(IPAddress.Parse(IpAddress), Int32.Parse(Port), VerifySocketConnectionAvailability);
+            }
+        }
+
+        private void VerifySocketConnectionAvailability(bool connected)
+        {
+            if (connected)
+            {
+                ConnectionInfo.Text = string.Format("Connecté à : {0}:{1}", IpAddress, Port);
+                ErrorMessage.Text = "";
+                ConnectionInfo.Visibility = Visibility.Visible;
+                FileForm.Visibility = Visibility.Visible;
+                LogoutButton.Visibility = Visibility.Visible;
+                LoginButton.Visibility = Visibility.Hidden;
+                ClientSocket.EndConnection();
+            }
+            else
+            {
+                ErrorMessage.Text = "Le serveur Peer-2-Peer renseigné n'est pas accessible";
             }
         }
 

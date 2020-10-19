@@ -15,6 +15,7 @@ namespace P2PFileShare.Services
     {
         #region Variables
         TcpListener server = null;
+        TcpClient handlerSocket;
         private IPAddress _ipAddress;
         private int _port;
         private const int DATA_BUFFER_SIZE = 2048;
@@ -95,20 +96,19 @@ namespace P2PFileShare.Services
 
             while (true)
             {
-                TcpClient handlerSocket = await server.AcceptTcpClientAsync();
+                handlerSocket = await server.AcceptTcpClientAsync();
                 if (handlerSocket.Connected)
                 {
-                    Handler(handlerSocket);
+                    _ = Handler();
                 }
             }
         }
 
-        public async Task Handler(TcpClient handlerSocket)
+        public async Task Handler()
         {
             NetworkStream Nw = new NetworkStream(handlerSocket.Client);
             if (Nw.DataAvailable)
             {
-                int thisRead = 0;
                 Byte[] dataBytes = new Byte[DATA_BUFFER_SIZE];
                 Byte[] fileNameBytes = new Byte[FILE_NAME_BUFFER_SIZE];
 
@@ -117,13 +117,17 @@ namespace P2PFileShare.Services
                 Stream writingStream = File.OpenWrite(Path.Combine(getSavePath(), getFileName(fileNameBytes)));
                 while (true)
                 {
-                    thisRead = await Nw.ReadAsync(dataBytes, 0, DATA_BUFFER_SIZE);
-                    writingStream.Write(dataBytes, 0, thisRead);
-                    if (thisRead == 0)
+                    if (Nw.DataAvailable)
+                    {
+                        int size= await Nw.ReadAsync(dataBytes, 0, DATA_BUFFER_SIZE);
+                        writingStream.Write(dataBytes, 0, size);
+                    } else
+                    {
+                        writingStream.Close();
+                        handlerSocket.Close();
                         break;
+                    }
                 }
-                writingStream.Close();
-                handlerSocket = null;
             }
         }
 

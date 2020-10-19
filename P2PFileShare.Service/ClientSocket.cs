@@ -25,21 +25,19 @@ namespace P2PFileShare.Services
                 }
             }
         }
-        public ClientSocket(IPAddress ip, int port)
-        {
-            CreateAndConnectAsync(ip, port);
-        }
 
-        public async void CreateAndConnectAsync(IPAddress ip, int port)
+        public async Task CreateAndConnectAsync(IPAddress ip, int port, Action<bool> callback)
         {
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
                 await _socket.ConnectAsync(ip, port);
+                callback(true);
             }
             catch (SocketException e)
             {
                 Console.WriteLine(e.Message);
+                callback(false);
             }
         }
         public void SendFile(string file)

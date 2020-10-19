@@ -97,6 +97,14 @@
                         Height="24"
                         Width="24"/>
             </Button>
+            <TextBlock
+                VerticalAlignment="Center"
+                Style="{StaticResource MaterialDesignTextBlock}"
+                Foreground="Red"
+                Grid.Row="1"
+                Grid.Column="3"
+                Margin="16 0"
+                Name="ErrorMessage"/>
             <StackPanel
                 Grid.Row="1"
                 Grid.Column="3"
