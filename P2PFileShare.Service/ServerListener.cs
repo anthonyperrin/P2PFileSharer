@@ -78,7 +78,7 @@ namespace P2PFileShare.Services
             RootPath = @"C:\Temp\";
             Repository = @"Efforceurs";
             CheckDefaultSaveDir();
-            Listen();
+            _ = Listen();
         }
 
         public string getSavePath()
@@ -97,40 +97,39 @@ namespace P2PFileShare.Services
             while (true)
             {
                 handlerSocket = await server.AcceptTcpClientAsync();
-                if (handlerSocket.Connected)
-                {
-                    _ = Handler();
-                }
+                _ = Handler();
             }
         }
 
+        /**
+         * Handles a client to connection to read the networkstream.
+         */
         public async Task Handler()
         {
-            NetworkStream Nw = new NetworkStream(handlerSocket.Client);
-            if (Nw.DataAvailable)
-            {
+            while (true) {
+                if (!handlerSocket.Connected)
+                    break;
+                NetworkStream Nw = handlerSocket.GetStream();
                 Byte[] dataBytes = new Byte[DATA_BUFFER_SIZE];
                 Byte[] fileNameBytes = new Byte[FILE_NAME_BUFFER_SIZE];
-
                 await Nw.ReadAsync(fileNameBytes, 0, FILE_NAME_BUFFER_SIZE);
-                
                 Stream writingStream = File.OpenWrite(Path.Combine(getSavePath(), getFileName(fileNameBytes)));
-                while (true)
-                {
-                    if (Nw.DataAvailable)
-                    {
-                        int size= await Nw.ReadAsync(dataBytes, 0, DATA_BUFFER_SIZE);
-                        writingStream.Write(dataBytes, 0, size);
-                    } else
+                while (true) {
+                    int size = await Nw.ReadAsync(dataBytes, 0, DATA_BUFFER_SIZE);
+                    if (!(size > 0))
                     {
                         writingStream.Close();
                         handlerSocket.Close();
                         break;
                     }
+                    writingStream.Write(dataBytes, 0, size);
                 }
             }
         }
 
+        /**
+         *  Whether default save directory doesn't exist, creates it.
+         */
         private void CheckDefaultSaveDir()
         {
             if (!Directory.Exists(RootPath))
@@ -142,7 +141,11 @@ namespace P2PFileShare.Services
                 Directory.CreateDirectory(getSavePath());
             }
         }
-
+        
+        /**
+         * Forces a socket connection to get the local IP
+         * which is routed to the gateway.
+         */
         private IPAddress GetIPAddress()
         {
             IPAddress[] ips = Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(o => o.AddressFamily == AddressFamily.InterNetwork).ToArray();
@@ -156,6 +159,9 @@ namespace P2PFileShare.Services
             }
         }
 
+        /**
+         * Gets the file name in the corresponding buffer.
+         */
         private string getFileName(byte[] fileNameBytes)
         {
             int i = fileNameBytes.Length - 1;

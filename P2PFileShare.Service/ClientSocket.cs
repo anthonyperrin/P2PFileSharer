@@ -8,9 +8,12 @@ namespace P2PFileShare.Services
 {
     public class ClientSocket
     {
+        #region Variables
         private Socket _socket;
         private const int FILE_NAME_BUFFER_SIZE = 64;
+        #endregion
 
+        #region Propriétés
         public Socket Socket
         {
             get
@@ -25,6 +28,7 @@ namespace P2PFileShare.Services
                 }
             }
         }
+        #endregion
 
         public async Task CreateAndConnectAsync(IPAddress ip, int port, Action<bool> callback)
         {
@@ -40,6 +44,7 @@ namespace P2PFileShare.Services
                 callback(false);
             }
         }
+
         public void SendFile(string file)
         {
             if (_socket.Connected)

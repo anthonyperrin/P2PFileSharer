@@ -129,23 +129,23 @@ namespace P2PFileShare.Application
                 File = openFileDialog.FileName;
         }
 
-        private void btnSendFile_Click(object sender, RoutedEventArgs e)
+        private async void btnSendFile_Click(object sender, RoutedEventArgs e)
         {
-            ClientSocket = new ClientSocket();
-            _ = ClientSocket.CreateAndConnectAsync(IPAddress.Parse(IpAddress), Int32.Parse(Port), VerifySocketConnectionAvailability);
-            if (ClientSocket.Socket.Connected)
+            if (!ClientSocket.Socket.Connected)
             {
-                ClientSocket.SendFile(File);
-                ClientSocket.EndConnection();
+                ClientSocket = new ClientSocket();
+                await ClientSocket.CreateAndConnectAsync(IPAddress.Parse(IpAddress), Int32.Parse(Port), VerifySocketConnectionAvailability);
             }
+            ClientSocket.SendFile(File);
+            ClientSocket.EndConnection();
         }
 
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             if (IpAddress != null && Port != null)
             {
                 ClientSocket = new ClientSocket();
-                _ = ClientSocket.CreateAndConnectAsync(IPAddress.Parse(IpAddress), Int32.Parse(Port), VerifySocketConnectionAvailability);
+                await ClientSocket.CreateAndConnectAsync(IPAddress.Parse(IpAddress), Int32.Parse(Port), VerifySocketConnectionAvailability);
             }
         }
 
@@ -159,7 +159,7 @@ namespace P2PFileShare.Application
                 FileForm.Visibility = Visibility.Visible;
                 LogoutButton.Visibility = Visibility.Visible;
                 LoginButton.Visibility = Visibility.Hidden;
-                ClientSocket.EndConnection();
+                //ClientSocket.EndConnection();
             }
             else
             {
