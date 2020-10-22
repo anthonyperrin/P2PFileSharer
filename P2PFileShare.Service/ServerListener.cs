@@ -22,6 +22,7 @@ namespace P2PFileShare.Services
         private const int FILE_NAME_BUFFER_SIZE = 64;
         private string _rootPath;
         private string _repository;
+        public bool isReceiving;
         #endregion
 
         #region Propriétés
@@ -73,10 +74,11 @@ namespace P2PFileShare.Services
         }
         #endregion
 
-        public ServerListener()
+        public ServerListener(ProgressBar)
         {
             RootPath = @"C:\Temp\";
             Repository = @"Efforceurs";
+            isReceiving = false;
             CheckDefaultSaveDir();
             _ = Listen();
         }
@@ -114,12 +116,14 @@ namespace P2PFileShare.Services
                 Byte[] fileNameBytes = new Byte[FILE_NAME_BUFFER_SIZE];
                 await Nw.ReadAsync(fileNameBytes, 0, FILE_NAME_BUFFER_SIZE);
                 Stream writingStream = File.OpenWrite(Path.Combine(getSavePath(), getFileName(fileNameBytes)));
+                isReceiving = true;
                 while (true) {
                     int size = await Nw.ReadAsync(dataBytes, 0, DATA_BUFFER_SIZE);
                     if (!(size > 0))
                     {
                         writingStream.Close();
                         handlerSocket.Close();
+                        isReceiving = false;
                         break;
                     }
                     writingStream.Write(dataBytes, 0, size);

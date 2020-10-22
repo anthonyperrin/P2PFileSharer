@@ -15,7 +15,10 @@
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}">
-    <Grid>
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Window.Resources>
+        <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
@@ -178,33 +181,68 @@
                     Margin="16 0"
                     Style="{StaticResource MaterialDesignRaisedButton}"
                     Click="btnChangeFolder_Click"
-                    ToolTip="MaterialDesignFlatButton" Content="DOSSIER">
+                    ToolTip="Choix du dossier de destination" Content="DOSSIER">
                 </Button>
                 <Grid Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="0 0 16 0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <TextBox Grid.Column="0" materialDesign:ValidationAssist.HorizontalAlignment="Left"
                         materialDesign:HintAssist.Hint="C:\\"
                         materialDesign:HintAssist.HelperText="Emplacement du dossier"
                         Text="{Binding Repository}"/>
+                    <Button
+                        Grid.Column="1"
+                        Name="btnOpenFolder"
+                        Margin="16 0"
+                        Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                        Click="btnOpenFolder_Click"
+                        ToolTip="Ouvre le dossier de destination">
+                        <materialDesign:PackIcon
+                            Kind="Folder"
+                            Height="24"
+                            Width="24"/>
+                    </Button>
                 </Grid>
 
             </Grid>
             <Grid 
                 VerticalAlignment="Bottom"
-                HorizontalAlignment="Right"
                 Grid.Row="2"
                 Margin="0 0 16 16">
-                <Button
-                    Style="{StaticResource MaterialDesignFloatingActionAccentButton}"
-                    ToolTip="Envoyer le fichier"
-                    Click="btnSendFile_Click">
-                    <materialDesign:PackIcon
-                        Kind="FileSendOutline"
-                        Height="24"
-                        Width="24"/>
-                </Button>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="200"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        VerticalAlignment="center"
+                        Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                        Grid.Column="0"
+                        Margin="16 0"
+                        Text="Status de réception"/>
+                    <ProgressBar 
+                        Margin="16 0"
+                        Grid.Column="1"
+                        Minimum="0"
+                        Maximum="100"
+                        Name="ProgressBar"
+                        IsIndeterminate="True"
+                        Visibility="{Binding IsReceiving, UpdateSourceTrigger=PropertyChanged, Mode=OneWay, Converter={StaticResource BoolToVis}}"/>
+                    <Button
+                        Grid.Column="2"
+                        HorizontalAlignment="Right"
+                        Style="{StaticResource MaterialDesignFloatingActionAccentButton}"
+                        ToolTip="Envoyer le fichier"
+                        Click="btnSendFile_Click">
+                        <materialDesign:PackIcon
+                            Kind="FileSendOutline"
+                            Height="24"
+                            Width="24"/>
+                    </Button>
+                </Grid>
             </Grid>
         </Grid>
     </Grid>

@@ -7,6 +7,9 @@ using System;
 using System.Windows.Forms;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using System.Linq;
+using MaterialDesignThemes.Wpf;
+using System.Diagnostics;
+using System.IO;
 
 namespace P2PFileShare.Application
 {
@@ -21,6 +24,8 @@ namespace P2PFileShare.Application
         private string _port;
         private string _file;
         private string _repository;
+        private bool _isReceiving;
+        private string _receive;
         private ServerListener _serverListener;
         private ClientSocket _clientSocket;
 
@@ -80,6 +85,31 @@ namespace P2PFileShare.Application
             }
         }
 
+        public bool IsReceiving
+        {
+            get { return ServerListener.isReceiving; }
+            set
+            {
+                if (value != _isReceiving)
+                {
+                    _isReceiving = ServerListener.isReceiving;
+                    OnPropertyChanged("IsReceiving");
+                }
+            }
+        }
+        public string Receive
+        {
+            get { return _receive; }
+            set
+            {
+                if (value != _receive)
+                {
+                    _receive = value;
+                    OnPropertyChanged("Receive");
+                }
+            }
+        }
+
         public ServerListener ServerListener
         {
             get { return _serverListener; }
@@ -110,11 +140,12 @@ namespace P2PFileShare.Application
 
         public MainWindow()
         {
-            InitializeComponent();
             ServerListener = new ServerListener();
+            InitializeComponent();
             ServerInfos.Text = $"En écoute sur {ServerListener.IpAddress}:{ServerListener.Port}";
             IpAddress = "192.168.1.136";
             Port = "5656";
+            Receive = ServerListener.isReceiving.ToString();
         }
 
         protected void OnPropertyChanged(string propertyName)
@@ -131,11 +162,8 @@ namespace P2PFileShare.Application
 
         private async void btnSendFile_Click(object sender, RoutedEventArgs e)
         {
-            if (!ClientSocket.Socket.Connected)
-            {
-                ClientSocket = new ClientSocket();
-                await ClientSocket.CreateAndConnectAsync(IPAddress.Parse(IpAddress), Int32.Parse(Port), VerifySocketConnectionAvailability);
-            }
+            ClientSocket = new ClientSocket();
+            await ClientSocket.CreateAndConnectAsync(IPAddress.Parse(IpAddress), Int32.Parse(Port), VerifySocketConnectionAvailability);
             ClientSocket.SendFile(File);
             ClientSocket.EndConnection();
         }
@@ -159,7 +187,6 @@ namespace P2PFileShare.Application
                 FileForm.Visibility = Visibility.Visible;
                 LogoutButton.Visibility = Visibility.Visible;
                 LoginButton.Visibility = Visibility.Hidden;
-                //ClientSocket.EndConnection();
             }
             else
             {
@@ -190,6 +217,24 @@ namespace P2PFileShare.Application
             {
                 ServerListener.Repository = string.Empty;
                 ServerListener.RootPath = Repository;
+            }
+        }
+
+        private void btnOpenFolder_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(Repository))
+                {
+                    Process.Start(Repository);
+                } else
+                {
+                    Process.Start(ServerListener.getSavePath());
+                }
+            }
+            catch (Win32Exception win32Exception)
+            {
+                Console.WriteLine(win32Exception.Message);
             }
         }
     }
