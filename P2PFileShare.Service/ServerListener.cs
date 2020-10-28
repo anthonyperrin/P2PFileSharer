@@ -74,7 +74,7 @@ namespace P2PFileShare.Services
         }
         #endregion
 
-        public ServerListener(ProgressBar)
+        public ServerListener()
         {
             RootPath = @"C:\Temp\";
             Repository = @"Efforceurs";
@@ -119,8 +119,7 @@ namespace P2PFileShare.Services
                 isReceiving = true;
                 while (true) {
                     int size = await Nw.ReadAsync(dataBytes, 0, DATA_BUFFER_SIZE);
-                    if (!(size > 0))
-                    {
+                    if (!(size > 0)) {
                         writingStream.Close();
                         handlerSocket.Close();
                         isReceiving = false;
