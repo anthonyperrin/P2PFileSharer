@@ -85,18 +85,6 @@ namespace P2PFileShare.Application
             }
         }
 
-        public bool IsReceiving
-        {
-            get { return ServerListener.isReceiving; }
-            set
-            {
-                if (value != _isReceiving)
-                {
-                    _isReceiving = ServerListener.isReceiving;
-                    OnPropertyChanged("IsReceiving");
-                }
-            }
-        }
         public string Receive
         {
             get { return _receive; }
@@ -145,7 +133,6 @@ namespace P2PFileShare.Application
             ServerInfos.Text = $"En écoute sur {ServerListener.IpAddress}:{ServerListener.Port}";
             IpAddress = "192.168.1.136";
             Port = "5656";
-            Receive = ServerListener.isReceiving.ToString();
         }
 
         protected void OnPropertyChanged(string propertyName)
@@ -153,6 +140,9 @@ namespace P2PFileShare.Application
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        /**
+         * Opens file to send event handler.
+         */
         private void btnOpenFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -160,6 +150,9 @@ namespace P2PFileShare.Application
                 File = openFileDialog.FileName;
         }
 
+        /**
+         * Sends file button event handler.
+         */
         private async void btnSendFile_Click(object sender, RoutedEventArgs e)
         {
             ClientSocket = new ClientSocket();
@@ -168,18 +161,24 @@ namespace P2PFileShare.Application
             ClientSocket.EndConnection();
         }
 
+        /**
+         * Connects server button event handler.
+         */
         private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             if (IpAddress != null && Port != null)
             {
                 ClientSocket = new ClientSocket();
-                await ClientSocket.CreateAndConnectAsync(IPAddress.Parse(IpAddress), Int32.Parse(Port), VerifySocketConnectionAvailability);
+                await ClientSocket.CreateAndConnectAsync(IPAddress.Parse(IpAddress), Int32.Parse(Port), VerifySocketConnectionAvailability); // Wait async response.
             }
         }
 
+        /**
+         * Handles connection availibity to the specified server.
+         */
         private void VerifySocketConnectionAvailability(bool connected)
         {
-            if (connected)
+            if (connected) // If async connection returned true.
             {
                 ConnectionInfo.Text = string.Format("Connecté à : {0}:{1}", IpAddress, Port);
                 ErrorMessage.Text = "";
@@ -188,12 +187,15 @@ namespace P2PFileShare.Application
                 LogoutButton.Visibility = Visibility.Visible;
                 LoginButton.Visibility = Visibility.Hidden;
             }
-            else
+            else // If async connection return false.
             {
                 ErrorMessage.Text = "Le serveur Peer-2-Peer renseigné n'est pas accessible";
             }
         }
 
+        /**
+         * Disconnects server button event handler.
+         */
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
             ClientSocket.EndConnection();
@@ -206,6 +208,9 @@ namespace P2PFileShare.Application
             }
         }
 
+        /**
+         * Chandes save path button event handler.
+         */
         private void btnChangeFolder_Click(object sender, RoutedEventArgs e)
         {
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
@@ -220,6 +225,9 @@ namespace P2PFileShare.Application
             }
         }
 
+        /**
+         * Opens save folder in explorer.
+         */
         private void btnOpenFolder_Click(object sender, RoutedEventArgs e)
         {
             try

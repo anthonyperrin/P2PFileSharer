@@ -30,6 +30,12 @@ namespace P2PFileShare.Services
         }
         #endregion
 
+        /**
+         * Creates a new socket and try to connect to it.
+         * <param name="ip">The IP address to connect</param>
+         * <param name="port">The port to connect</param>
+         * <param name="callback">The response returned by the async</param>
+         */
         public async Task CreateAndConnectAsync(IPAddress ip, int port, Action<bool> callback)
         {
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -45,9 +51,13 @@ namespace P2PFileShare.Services
             }
         }
 
+        /**
+         * Sends a file via the connected socket
+         * <param name="file">The path to the file to send</param>
+         */
         public void SendFile(string file)
         {
-            if (_socket.Connected)
+            if (_socket.Connected && !String.IsNullOrEmpty(file))
             {
                 string filePath = "";
                 string fileName = file.Replace("\\", "/");
@@ -60,12 +70,15 @@ namespace P2PFileShare.Services
 
                 Byte[] fileNameData = new Byte[FILE_NAME_BUFFER_SIZE];
                 byte[] fileNameByte = Encoding.ASCII.GetBytes(fileName);
-                fileNameByte.CopyTo(fileNameData, 0);
-                Socket.Send(fileNameData);
-                Socket.SendFile(file);
+                fileNameByte.CopyTo(fileNameData, 0); // Copy file name in the prepared buffer.
+                Socket.Send(fileNameData); // Sends file name to connected server.
+                Socket.SendFile(file); // Then sends file data.
             }
         }
 
+        /**
+         * Close socket connection.
+         */
         public void EndConnection()
         {
             _socket.Close();

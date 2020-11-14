@@ -22,7 +22,6 @@ namespace P2PFileShare.Services
         private const int FILE_NAME_BUFFER_SIZE = 64;
         private string _rootPath;
         private string _repository;
-        public bool isReceiving;
         #endregion
 
         #region Propriétés
@@ -78,7 +77,6 @@ namespace P2PFileShare.Services
         {
             RootPath = @"C:\Temp\";
             Repository = @"Efforceurs";
-            isReceiving = false;
             CheckDefaultSaveDir();
             _ = Listen();
         }
@@ -88,6 +86,9 @@ namespace P2PFileShare.Services
             return Path.Combine(RootPath, Repository);
         }
 
+        /**
+         * Listens connections on the given IP and Port.
+         */
         public async Task Listen()
         {
             IpAddress= GetIPAddress();
@@ -98,13 +99,14 @@ namespace P2PFileShare.Services
 
             while (true)
             {
-                handlerSocket = await server.AcceptTcpClientAsync();
+                handlerSocket = await server.AcceptTcpClientAsync(); // Blocks code execution whether client hasn't connected yet.
                 _ = Handler();
             }
         }
 
         /**
          * Handles a client to connection to read the networkstream.
+         * Writes the networkstream into a file.
          */
         public async Task Handler()
         {
@@ -114,18 +116,16 @@ namespace P2PFileShare.Services
                 NetworkStream Nw = handlerSocket.GetStream();
                 Byte[] dataBytes = new Byte[DATA_BUFFER_SIZE];
                 Byte[] fileNameBytes = new Byte[FILE_NAME_BUFFER_SIZE];
-                await Nw.ReadAsync(fileNameBytes, 0, FILE_NAME_BUFFER_SIZE);
-                Stream writingStream = File.OpenWrite(Path.Combine(getSavePath(), getFileName(fileNameBytes)));
-                isReceiving = true;
+                await Nw.ReadAsync(fileNameBytes, 0, FILE_NAME_BUFFER_SIZE); // Reads the file name bytes.
+                Stream writingStream = File.OpenWrite(Path.Combine(getSavePath(), getFileName(fileNameBytes))); // Opens stream in save path.
                 while (true) {
-                    int size = await Nw.ReadAsync(dataBytes, 0, DATA_BUFFER_SIZE);
+                    int size = await Nw.ReadAsync(dataBytes, 0, DATA_BUFFER_SIZE); // Reads file until read size reaches 0.
                     if (!(size > 0)) {
                         writingStream.Close();
                         handlerSocket.Close();
-                        isReceiving = false;
                         break;
                     }
-                    writingStream.Write(dataBytes, 0, size);
+                    writingStream.Write(dataBytes, 0, size); // Writes data read into the stream.
                 }
             }
         }
@@ -146,7 +146,7 @@ namespace P2PFileShare.Services
         }
         
         /**
-         * Forces a socket connection to get the local IP
+         * Forces a connection to get the local network card IP
          * which is routed to the gateway.
          */
         private IPAddress GetIPAddress()
@@ -164,6 +164,7 @@ namespace P2PFileShare.Services
 
         /**
          * Gets the file name in the corresponding buffer.
+         * <param name="fileNameBytes">The file name bytes part</param>
          */
         private string getFileName(byte[] fileNameBytes)
         {

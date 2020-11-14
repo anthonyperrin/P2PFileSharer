@@ -205,7 +205,6 @@
                             Width="24"/>
                     </Button>
                 </Grid>
-
             </Grid>
             <Grid 
                 VerticalAlignment="Bottom"
@@ -213,26 +212,10 @@
                 Margin="0 0 16 16">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"></ColumnDefinition>
-                        <ColumnDefinition Width="200"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <TextBlock
-                        VerticalAlignment="center"
-                        Style="{StaticResource MaterialDesignHeadline6TextBlock}"
-                        Grid.Column="0"
-                        Margin="16 0"
-                        Text="Status de réception"/>
-                    <ProgressBar 
-                        Margin="16 0"
-                        Grid.Column="1"
-                        Minimum="0"
-                        Maximum="100"
-                        Name="ProgressBar"
-                        IsIndeterminate="True"
-                        Visibility="{Binding IsReceiving, UpdateSourceTrigger=PropertyChanged, Mode=OneWay, Converter={StaticResource BoolToVis}}"/>
                     <Button
-                        Grid.Column="2"
+                        Grid.Column="0"
                         HorizontalAlignment="Right"
                         Style="{StaticResource MaterialDesignFloatingActionAccentButton}"
                         ToolTip="Envoyer le fichier"
