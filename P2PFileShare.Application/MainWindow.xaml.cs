@@ -131,8 +131,6 @@ namespace P2PFileShare.Application
             ServerListener = new ServerListener();
             InitializeComponent();
             ServerInfos.Text = $"En écoute sur {ServerListener.IpAddress}:{ServerListener.Port}";
-            IpAddress = "192.168.1.136";
-            Port = "5656";
         }
 
         protected void OnPropertyChanged(string propertyName)
